@@ -123,7 +123,10 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
     brokerinfo
   }
 
-  // protected def saveOffset(pid: Int, offset: long)
+  protected def saveOffset(pid: Int, offset: Long) = {
+    // we are supposed to save the current offset here
+    logger.info("Partition: " + pid + "  Offset: " + offset)
+  }
 
   protected def loadLeaderAddresses(pid: Int) = {
     var path = getZkBrokerPartitionPath(pid) + "/state"
@@ -180,8 +183,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
               }
             }
             if (java.lang.System.currentTimeMillis - savemark > saveInterval) {
-              // we are supposed to save the current offset here
-              logger.info("Partition: " + partition + "  Offset: " + curOffset)
+              saveOffset(partition, curOffset)
               savemark = java.lang.System.currentTimeMillis
             }
           }
