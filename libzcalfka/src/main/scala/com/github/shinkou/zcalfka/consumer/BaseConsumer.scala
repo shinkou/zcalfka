@@ -17,8 +17,9 @@
 // vim: set sw=2 ts=2 tw=0 et:
 package com.github.shinkou.zcalfka.consumer
 
-import scala.collection.immutable.HashMap
 import scala.collection.JavaConversions._
+import scala.collection.immutable.HashMap
+import scala.collection.parallel.ForkJoinTaskSupport
 
 import kafka.api.{FetchRequestBuilder, PartitionOffsetRequestInfo, OffsetRequest, OffsetResponse, Request}
 import kafka.common.{ErrorMapping, TopicAndPartition}
@@ -125,7 +126,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
 
   protected def saveOffset(pid: Int, offset: Long) = {
     // we are supposed to save the current offset here
-    logger.info("Partition: " + pid + "  Offset: " + offset)
+    logger.info("Topic: " + topic + "  Partition: " + pid + "  Offset: " + offset)
   }
 
   protected def loadLeaderAddresses(pid: Int) = {
@@ -149,7 +150,9 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
 
   def start() = {
     var partitions = loadPartitions()
-    partitions.par.foreach((partition) => {
+    var coll = partitions.par
+    coll.tasksupport = new ForkJoinTaskSupport(new scala.concurrent.forkjoin.ForkJoinPool(partitions.size))
+    coll.foreach((partition) => {
       var consumer = connectKafka(partition)
       consumers.put(partition, consumer)
       var curOffset = getOffset(partition)
