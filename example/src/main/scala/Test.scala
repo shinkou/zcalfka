@@ -17,7 +17,7 @@
 // vim: set sw=2 ts=2 tw=0 et:
 import java.util.concurrent.atomic.AtomicLong
 
-import org.apache.log4j.{Logger, LogManager}
+import org.apache.log4j.LogManager
 
 import com.github.shinkou.zcalfka.consumer.BaseConsumer
 
@@ -26,6 +26,11 @@ class TestConsumer(override val gid: String, override val t: String, override va
 
   override def process(buf: java.nio.ByteBuffer) {
     msgcnt.getAndIncrement
+  }
+
+  // override to print instead of saving the offsets
+  override def saveOffset(pid: Int, offset: Long) {
+    logger.info("Topic: " + topic + "  Partition: " + pid + "  Offset: " + offset)
   }
 
   def getMsgcnt() = msgcnt.getAndSet(0L)

@@ -21,14 +21,14 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable.HashMap
 import scala.collection.parallel.ForkJoinTaskSupport
 
-import kafka.api.{FetchRequestBuilder, PartitionOffsetRequestInfo, OffsetRequest, OffsetResponse, Request}
+import kafka.api.{FetchRequestBuilder, PartitionOffsetRequestInfo, OffsetRequest, Request}
 import kafka.common.{ErrorMapping, TopicAndPartition}
 import kafka.consumer.SimpleConsumer
-import kafka.utils.{Json, ZKStringSerializer}
+import kafka.utils.{Json, ZKStringSerializer, ZkUtils}
 
-import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.ZkClient
 
-import org.apache.log4j.{Logger, LogManager}
+import org.apache.log4j.LogManager
 
 class BaseConsumer(val gid: String, val t: String, val ep: String) {
   protected var logger = LogManager.getLogger(getClass)
@@ -125,8 +125,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
   }
 
   protected def saveOffset(pid: Int, offset: Long) = {
-    // we are supposed to save the current offset here
-    logger.info("Topic: " + topic + "  Partition: " + pid + "  Offset: " + offset)
+    ZkUtils.updatePersistentPath(zkClient, getZkConsumerOffsetPath(pid), offset.toString)
   }
 
   protected def loadLeaderAddresses(pid: Int) = {
