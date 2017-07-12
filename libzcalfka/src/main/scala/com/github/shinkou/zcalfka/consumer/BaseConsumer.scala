@@ -207,6 +207,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
           consumers.put(partition, consumer)
         }
       }
+      saveOffset(partition, curOffset)
     })
   }
 
