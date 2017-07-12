@@ -24,7 +24,7 @@ import com.github.shinkou.zcalfka.consumer.BaseConsumer
 class TestConsumer(override val gid: String, override val t: String, override val ep: String) extends BaseConsumer(gid, t, ep) {
   protected var msgcnt = new AtomicLong()
 
-  override def process(buf: java.nio.ByteBuffer) {
+  override def process(pid: Int, buf: java.nio.ByteBuffer) {
     msgcnt.getAndIncrement
   }
 

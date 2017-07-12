@@ -181,7 +181,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
               }
               else {
                 curOffset = mao.nextOffset
-                process(mao.message.payload)
+                process(partition, mao.message.payload)
               }
             }
             if (java.lang.System.currentTimeMillis - savemark > saveInterval) {
@@ -218,7 +218,7 @@ class BaseConsumer(val gid: String, val t: String, val ep: String) {
     })
   }
 
-  def process(buf: java.nio.ByteBuffer) {
+  def process(pid: Int, buf: java.nio.ByteBuffer) {
     var arr = new Array[Byte](buf.limit)
     buf.get(arr)
     var s = new String(arr, "UTF-8")
